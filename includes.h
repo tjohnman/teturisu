@@ -9,6 +9,7 @@
 
 #include "helper.h"
 #include "sprite.h"
+#include "game_state.h"
 
 SDL_Window * window;
 SDL_Renderer * renderer;

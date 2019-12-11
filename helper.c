@@ -11,3 +11,17 @@ void draw(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigne
     SDL_RenderCopy(renderer, texture, src, &dst);
     SDL_SetRenderTarget(renderer, 0);
 }
+
+void changeState(gameState_e state) {
+    switch(currentState) {
+        default:
+        case menu:
+            
+        break;
+
+        case game:
+            gameStateWillChangeState(state);
+            currentState = state;
+        break;
+    }
+}

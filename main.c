@@ -1,5 +1,8 @@
 #include "includes.h"
 
+void mainUpdate(double delta);
+void mainDraw();
+
 int main(int argc, char * argv[]) {
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
@@ -12,8 +15,13 @@ int main(int argc, char * argv[]) {
 
     uint8_t done = SDL_FALSE;
     SDL_Event e;
+    uint32_t lastMillis, currentMillis;
+    double delta = 0;
 
     while(!done) {
+        currentMillis = SDL_GetTicks();
+        delta = (currentMillis - lastMillis) / 1000.0;
+
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) {
                 done = SDL_TRUE;
@@ -21,10 +29,16 @@ int main(int argc, char * argv[]) {
             }
         }
 
+        mainUpdate(delta);
+
         SDL_RenderClear(renderer);
+
+        mainDraw();
 
         SDL_RenderCopy(renderer, canvas, 0, 0);
         SDL_RenderPresent(renderer);
+
+        lastMillis = currentMillis;
     }
 
     SDL_DestroyTexture(canvas);
@@ -34,4 +48,30 @@ int main(int argc, char * argv[]) {
     SDL_Quit();
 
     return 0;
+}
+
+void mainUpdate(double delta) {
+    switch(currentState) {
+        default:
+        case menu:
+            
+        break;
+
+        case game:
+            gameStateUpdate(delta);
+        break;
+    }
+}
+
+void mainDraw() {
+    switch(currentState) {
+        default:
+        case menu:
+            
+        break;
+
+        case game:
+            gameStateDraw();
+        break;
+    }
 }
