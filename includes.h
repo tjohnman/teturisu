@@ -1,15 +1,12 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
 #define WIDTH 192
 #define HEIGHT 144
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
-#include "helper.h"
-#include "sprite.h"
-#include "game_state.h"
+#define SCALE 3
 
 SDL_Window * window;
 SDL_Renderer * renderer;

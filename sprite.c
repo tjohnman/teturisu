@@ -1,4 +1,5 @@
 #include "sprite.h"
+#include "helper.h"
 
 sprite_t * spriteCreate(const char * path, unsigned frame_width, unsigned frame_height) {
     sprite_t * sprite = (sprite_t *) malloc(sizeof(sprite_t));
@@ -13,7 +14,6 @@ sprite_t * spriteCreate(const char * path, unsigned frame_width, unsigned frame_
     SDL_Surface * surface = IMG_Load(path);
     sprite->width = surface->w;
     sprite->height = surface->h;
-
     sprite->texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
