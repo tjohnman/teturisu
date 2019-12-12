@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "helper.h"
 #include "game_state.h"
+#include "input.h"
 
 void mainUpdate(double delta);
 void mainDraw();
@@ -31,6 +32,8 @@ int main(int argc, char * argv[]) {
             if(e.type == SDL_QUIT) {
                 done = SDL_TRUE;
                 break;
+            } else {
+                inputCheckEvent(&e);
             }
         }
 

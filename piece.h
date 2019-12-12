@@ -17,7 +17,7 @@ typedef enum {
 typedef struct {
     uint8_t size;
     piece_type_e tile_index, data[16];
-    unsigned x, y;
+    signed x, y;
 } piece_t;
 
 piece_t pieceCreate(piece_type_e type);
