@@ -24,5 +24,7 @@ piece_t pieceCreate(piece_type_e type);
 piece_t pieceCreateRandom();
 void pieceDraw(piece_t * piece);
 void pieceDrawP(piece_t * piece, unsigned x, unsigned y);
+piece_t pieceRotateCW(piece_t piece);
+piece_t pieceRotateCCW(piece_t piece);
 
 #endif // PIECE_H

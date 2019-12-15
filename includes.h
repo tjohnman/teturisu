@@ -5,7 +5,7 @@
 #define INCLUDES_H
 
 #define WIDTH 192
-#define HEIGHT 144
+#define HEIGHT 160
 #define SCALE 3
 
 SDL_Window * window;

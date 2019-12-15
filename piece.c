@@ -26,23 +26,23 @@ piece_t pieceCreate(piece_type_e type) {
         break;
 
         case j:
-            piece.size = 3;
+            piece.size = 4;
             piece.data[4] = type;
-            piece.data[5] = type;
-            piece.data[6] = type;
+            piece.data[8] = type;
+            piece.data[9] = type;
             piece.data[10] = type;
         break;
 
         case l:
-            piece.size = 3;
-            piece.data[4] = type;
-            piece.data[5] = type;
+            piece.size = 4;
             piece.data[6] = type;
             piece.data[8] = type;
+            piece.data[9] = type;
+            piece.data[10] = type;
         break;
 
         case s:
-            piece.size = 3;
+            piece.size = 4;
             piece.data[5] = type;
             piece.data[6] = type;
             piece.data[8] = type;
@@ -50,15 +50,15 @@ piece_t pieceCreate(piece_type_e type) {
         break;
 
         case t:
-            piece.size = 3;
-            piece.data[4] = type;
+            piece.size = 4;
             piece.data[5] = type;
-            piece.data[6] = type;
+            piece.data[8] = type;
             piece.data[9] = type;
+            piece.data[10] = type;
         break;
 
         case z:
-            piece.size = 3;
+            piece.size = 4;
             piece.data[4] = type;
             piece.data[5] = type;
             piece.data[9] = type;
@@ -90,7 +90,7 @@ void pieceDraw(piece_t * piece) {
         if(x >= piece->size || y >= piece->size) continue;
         spriteSetFrame(helperData.blocksSprite, piece->data[i]);
         helperData.blocksSprite->x = WIDTH / 2 - 68 + (piece->x + x) * helperData.blocksSprite->frame_width;
-        helperData.blocksSprite->y = (piece->y + y) * helperData.blocksSprite->frame_height;
+        helperData.blocksSprite->y = (2 + piece->y + y) * helperData.blocksSprite->frame_height;
         spriteDraw(helperData.blocksSprite);
     }
 }
@@ -105,4 +105,48 @@ void pieceDrawP(piece_t * piece, unsigned x, unsigned y) {
 
     piece->x = _x;
     piece->y = _y;
+}
+
+piece_t pieceRotateCW(piece_t piece) {
+    piece_t original_piece = piece;
+    piece_t new_piece = piece;
+    new_piece.data[0] = original_piece.data[12];
+    new_piece.data[1] = original_piece.data[8];
+    new_piece.data[2] = original_piece.data[4];
+    new_piece.data[3] = original_piece.data[0];
+    new_piece.data[4] = original_piece.data[13];
+    new_piece.data[5] = original_piece.data[9];
+    new_piece.data[6] = original_piece.data[5];
+    new_piece.data[7] = original_piece.data[1];
+    new_piece.data[8] = original_piece.data[14];
+    new_piece.data[9] = original_piece.data[10];
+    new_piece.data[10] = original_piece.data[6];
+    new_piece.data[11] = original_piece.data[2];
+    new_piece.data[12] = original_piece.data[15];
+    new_piece.data[13] = original_piece.data[11];
+    new_piece.data[14] = original_piece.data[7];
+    new_piece.data[15] = original_piece.data[3];
+    return new_piece;
+}
+
+piece_t pieceRotateCCW(piece_t piece) {
+    piece_t original_piece = piece;
+    piece_t new_piece = piece;
+    new_piece.data[0] = original_piece.data[3];
+    new_piece.data[1] = original_piece.data[7];
+    new_piece.data[2] = original_piece.data[11];
+    new_piece.data[3] = original_piece.data[15];
+    new_piece.data[4] = original_piece.data[2];
+    new_piece.data[5] = original_piece.data[6];
+    new_piece.data[6] = original_piece.data[10];
+    new_piece.data[7] = original_piece.data[14];
+    new_piece.data[8] = original_piece.data[1];
+    new_piece.data[9] = original_piece.data[5];
+    new_piece.data[10] = original_piece.data[9];
+    new_piece.data[11] = original_piece.data[13];
+    new_piece.data[12] = original_piece.data[0];
+    new_piece.data[13] = original_piece.data[4];
+    new_piece.data[14] = original_piece.data[8];
+    new_piece.data[15] = original_piece.data[12];
+    return new_piece;
 }

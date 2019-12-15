@@ -6,22 +6,27 @@ void gameStateInitialize() {
     gameState.box_tiles = spriteCreate("assets/box-tiles-dark.png", 8, 8);
     gameState.block_tiles = spriteCreate("assets/blocks.png", 8, 8);
 
-    gameState.high_score = 0;
+    gameState.score = 0;
     gameState.next_piece = pieceCreateRandom();
+    gameState.cleared_line_count = 0;
 
+    gameState.piece_lock_animation_delay = SDL_FALSE;
     gameState.drop_step_duration = 1.5;
     gameState.time = 0;
+    gameState.lock_time_start = 0;
     gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
 
     for(unsigned i=0; i<200; ++i) gameState.board[i] = empty;
 
-    gameStateOnPieceSet();
+    gameStateOnPieceLock();
 }
 
 void gameStateUpdate(double delta) {
     gameState.time += delta;
 
-    if(gameState.time >= gameState.next_drop_time) {
+    if(gameState.piece_lock_animation_delay != 1 && gameState.piece_lock_animation_delay > 0) return;
+
+    if(gameState.lock_time_start == 0 && gameState.time >= gameState.next_drop_time) {
         gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
         gameMovePieceDown();
     }
@@ -29,16 +34,134 @@ void gameStateUpdate(double delta) {
     if(justPressed(SDLK_LEFT) || keyRepeat(SDLK_LEFT)) {
         if(!pieceIntersectsWithBoard(&gameState.current_piece, -1, 0)) {
             gameState.current_piece.x--;
+            gameStateResetLockTimer();
         }
     }
 
     if(justPressed(SDLK_RIGHT) || keyRepeat(SDLK_RIGHT)) {
         if(!pieceIntersectsWithBoard(&gameState.current_piece, 1, 0)) {
             gameState.current_piece.x++;
+            gameStateResetLockTimer();
         }
     }
 
-    if(justPressed(SDLK_DOWN) || keyRepeat(SDLK_DOWN)) gameMovePieceDown();
+    if(isKeyDown(SDLK_DOWN) && SDL_GetTicks() > gameState.last_force_down + 50) {
+        if(gameMovePieceDown()) {
+            ++gameState.score;
+            gameState.last_force_down = SDL_GetTicks();
+        }
+    }
+
+    if(justPressed(SDLK_UP)) {
+        while(!pieceIntersectsWithBoard(&gameState.current_piece, 0, 1)) {
+            gameMovePieceDown();
+            gameState.score += 2;
+        }
+        gameLockPiece();
+    }
+
+    if(justPressed(SDLK_x)) {
+        piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
+        if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
+            if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
+            else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
+            else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
+            else return;
+        }
+
+        gameState.current_piece = rotated_piece;
+        gameStateResetLockTimer();
+    }
+
+    if(justPressed(SDLK_z)) {
+        piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
+        if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
+            if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
+            else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
+            else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
+            else return;
+            while(!pieceIntersectsWithBoard(&rotated_piece, 0, 1)) rotated_piece.y++;
+        }
+
+        gameState.current_piece = rotated_piece;
+        gameStateResetLockTimer();
+    }
+
+    if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
+        gameLockPiece();
+    }
+}
+
+void gameStateLevelUp() {
+    ++gameState.level;
+    gameState.drop_step_duration *= 0.75;
+}
+
+void gameStateCheckLines() {
+    unsigned line_count = 0;
+    unsigned first_line = -1;
+    for(unsigned y=0; y<20; ++y) {
+        SDL_bool line = SDL_TRUE;
+        for(unsigned x=0; x<10; ++x) {
+            if(gameState.board[x + y*10] == empty) {
+                line = SDL_FALSE;
+                break;
+            };
+        }
+        if(line) {
+            if(first_line == -1) first_line = y;
+            ++line_count;
+        }
+    }
+
+    if(line_count) {
+        SDL_Rect r;
+        r.x = WIDTH / 2 - 68;
+        r.y = (2 + first_line)*gameState.block_tiles->frame_height;
+        r.w = 10 * gameState.block_tiles->frame_width;
+        r.h = line_count * gameState.block_tiles->frame_height;
+
+        SDL_Texture * previous_target = SDL_GetRenderTarget(renderer);
+        SDL_SetRenderTarget(renderer, 0);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &r);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &r);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &r);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+        SDL_SetRenderTarget(renderer, previous_target);
+
+        for(unsigned y=first_line; y<first_line+line_count; ++y) {
+            for(unsigned x=0; x<10; ++x) {
+                gameState.board[x + y*10] = empty;
+                for(unsigned y2=y; y2>0; --y2) {
+                    gameState.board[x + y2*10] = gameState.board[x + (y2-1)*10];
+                }
+                gameState.board[x] = empty;
+            }
+        }
+    }
+
+    switch(line_count) {
+        default: break;
+        case 1: gameState.score += 100 * gameState.level; break;
+        case 2: gameState.score += 300 * gameState.level; break;
+        case 3: gameState.score += 500 * gameState.level; break;
+        case 4: gameState.score += 800 * gameState.level; break;
+    }
+
+    gameState.cleared_line_count += line_count;
+    if(gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
+}
+
+void gameStateResetLockTimer() {
+    gameState.lock_time_start = pieceIntersectsWithBoard(&gameState.current_piece, 0, 1) ? SDL_GetTicks() : 0;
 }
 
 void gameStateDraw() {
@@ -54,7 +177,7 @@ void gameStateDraw() {
 
     fillRect(WIDTH / 2 - 68, 0, WIDTH / 2 + 16 - gameState.bricks->frame_width * 2, HEIGHT);
 
-    drawNumber(gameState.high_score, WIDTH - 8, 8, 1);
+    drawNumber(gameState.score, WIDTH - 8, 8, 1);
 
     unsigned box_x = 128;
     unsigned box_y = 24;
@@ -108,12 +231,17 @@ void gameStateDraw() {
 
         spriteSetFrame(gameState.block_tiles, gameState.board[i]);
         gameState.block_tiles->x = WIDTH / 2 - 68 + (i%10) * gameState.block_tiles->frame_width;
-        gameState.block_tiles->y = (i/10) * gameState.block_tiles->frame_height;
+        gameState.block_tiles->y = (2 + i/10) * gameState.block_tiles->frame_height;
         spriteDraw(gameState.block_tiles);
     }
 
     pieceDraw(&gameState.current_piece);
-    pieceDrawP(&gameState.next_piece, 16, 3);
+    pieceDrawP(&gameState.next_piece, 16, 1);
+
+    if(gameState.piece_lock_animation_delay != -1) {
+        if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
+        else --gameState.piece_lock_animation_delay;
+    }
 }
 
 void gameStateWillChangeState(gameState_e state) {
@@ -122,21 +250,29 @@ void gameStateWillChangeState(gameState_e state) {
     spriteDestroy(gameState.block_tiles);
 }
 
-void gameStateOnPieceSet() {
+void gameStateOnPieceLock() {
     gameState.current_piece = gameState.next_piece;
-    gameState.current_piece.y = -2;
+    gameState.current_piece.y = -3;
     gameState.next_piece = pieceCreateRandom(gameState.current_piece.tile_index);
+    gameState.lock_time_start = 0;
+    gameState.piece_lock_animation_delay = 10;
 }
 
-void gameMovePieceDown() {
+SDL_bool gameMovePieceDown() {
     if(pieceIntersectsWithBoard(&gameState.current_piece, 0, +1)) {
-        gameSetPiece();
-        return;    
+        if(gameState.lock_time_start == 0) gameState.lock_time_start = SDL_GetTicks();
+        return SDL_FALSE;    
     }
     gameState.current_piece.y++;
+    return SDL_TRUE;
 }
 
-void gameSetPiece() {
+void gameLockPiece() {
+    if(!pieceIntersectsWithBoard(&gameState.current_piece, 0, 1)) {
+        gameStateResetLockTimer();
+        return;
+    }
+
     for(unsigned i=0; i<16; i++) {
         signed piece_x = i%4;
         signed piece_y = i/4;
@@ -149,7 +285,7 @@ void gameSetPiece() {
 
         gameState.board[board_x + board_y * 10] = gameState.current_piece.data[piece_x + piece_y * 4];
     }
-    gameStateOnPieceSet();
+    gameStateOnPieceLock();
 }
 
 SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offset_y) {
@@ -162,7 +298,7 @@ SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offse
         signed board_x = piece->x + piece_x + offset_x;
         signed board_y = piece->y + piece_y + offset_y;
 
-        if(board_y < 0 || board_x < 0 || board_x >= 10 || board_y >= 18 || gameState.board[board_x + board_y * 10] != empty) {
+        if(board_x < 0 || board_x >= 10 || board_y >= 18 || (board_y >= 0 && gameState.board[board_x + board_y * 10] != empty)) {
             return SDL_TRUE;
         }
     }

@@ -8,10 +8,13 @@
 
 struct {
     sprite_t * bricks, * box_tiles, * block_tiles;
-    double high_score;
     piece_t current_piece, next_piece;
     double time, next_drop_time, drop_step_duration;
+    unsigned last_force_down, lock_time_start;
     piece_type_e board[200];
+    unsigned piece_lock_animation_delay;
+
+    unsigned score, level, cleared_line_count;
 } gameState;
 
 void gameStateInitialize();
@@ -19,9 +22,12 @@ void gameStateUpdate(double delta);
 void gameStateDraw();
 void gameStateWillChangeState(gameState_e state);
 
-void gameStateOnPieceSet();
-void gameMovePieceDown();
+void gameStateOnPieceLock();
+SDL_bool gameMovePieceDown();
 SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offset_y);
-void gameSetPiece();
+void gameLockPiece();
+void gameStateResetLockTimer();
+void gameStateCheckLines();
+void gameStateLevelUp();
 
 #endif // GAME_STATE_H
