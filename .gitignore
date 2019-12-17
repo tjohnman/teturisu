@@ -3,3 +3,4 @@ specs.txt
 teturisu
 .DS_Store
 teturisu.dSYM/
+.atom-build.yml
