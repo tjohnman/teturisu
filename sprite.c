@@ -17,6 +17,9 @@ sprite_t * spriteCreate(const char * path, unsigned frame_width, unsigned frame_
     sprite->texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
+    Uint32 format;
+    SDL_QueryTexture(sprite->texture, &format, 0, 0, 0);
+
     sprite->x = 0;
     sprite->y = 0;
     sprite->num_frames = sprite->width / sprite->frame_width;

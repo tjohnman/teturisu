@@ -30,7 +30,7 @@ void gameStateUpdate(double delta) {
         gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
         gameMovePieceDown();
     }
-    
+
     if(justPressed(SDLK_LEFT) || keyRepeat(SDLK_LEFT)) {
         if(!pieceIntersectsWithBoard(&gameState.current_piece, -1, 0)) {
             gameState.current_piece.x--;
@@ -157,7 +157,7 @@ void gameStateCheckLines() {
     }
 
     gameState.cleared_line_count += line_count;
-    if(gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
+    if(line_count > 0 && gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
 }
 
 void gameStateResetLockTimer() {
@@ -226,15 +226,32 @@ void gameStateDraw() {
     gameState.box_tiles->x = box_x + 48;
     spriteDraw(gameState.box_tiles);
 
-    for(unsigned i=0; i<200; ++i) {
-        if(gameState.board[i] == empty) continue;
+    spriteSetFrame(gameState.block_tiles, 5);
 
-        spriteSetFrame(gameState.block_tiles, gameState.board[i]);
-        gameState.block_tiles->x = WIDTH / 2 - 68 + (i%10) * gameState.block_tiles->frame_width;
-        gameState.block_tiles->y = (2 + i/10) * gameState.block_tiles->frame_height;
+    for(unsigned idx=0; idx<200; ++idx) {
+        if(gameState.board[idx] == empty) continue;
+
+        //spriteSetFrame(gameState.block_tiles, gameState.board[idx]);
+        gameState.block_tiles->x = WIDTH / 2 - 68 + (idx%10) * gameState.block_tiles->frame_width;
+        gameState.block_tiles->y = (2 + idx/10) * gameState.block_tiles->frame_height;
+
+        switch(gameState.board[idx]) {
+            default: break;
+            case i: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_I); break;
+            case o: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_O); break;
+            case t: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_T); break;
+            case s: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_S); break;
+            case z: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_Z); break;
+            case j: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_J); break;
+            case l: SDL_SetTextureColorMod(gameState.block_tiles->texture, PIECE_COLOR_L); break;
+        }
+
         spriteDraw(gameState.block_tiles);
     }
 
+    SDL_SetTextureColorMod(gameState.block_tiles->texture, 255, 255, 255);
+
+    gameStateDrawGhost();
     pieceDraw(&gameState.current_piece);
     pieceDrawP(&gameState.next_piece, 16, 1);
 
@@ -242,6 +259,15 @@ void gameStateDraw() {
         if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
         else --gameState.piece_lock_animation_delay;
     }
+}
+
+void gameStateDrawGhost() {
+    piece_t ghost = gameState.current_piece;
+    while(!pieceIntersectsWithBoard(&ghost, 0, 1)) {
+        ++ghost.y;
+    }
+
+    pieceDrawGhost(&ghost, ghost.x, ghost.y);
 }
 
 void gameStateWillChangeState(gameState_e state) {
@@ -261,7 +287,7 @@ void gameStateOnPieceLock() {
 SDL_bool gameMovePieceDown() {
     if(pieceIntersectsWithBoard(&gameState.current_piece, 0, +1)) {
         if(gameState.lock_time_start == 0) gameState.lock_time_start = SDL_GetTicks();
-        return SDL_FALSE;    
+        return SDL_FALSE;
     }
     gameState.current_piece.y++;
     return SDL_TRUE;

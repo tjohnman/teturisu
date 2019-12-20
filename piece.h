@@ -3,6 +3,15 @@
 
 #include "includes.h"
 
+#define PIECE_COLOR_I 0, 255, 255
+#define PIECE_COLOR_O 255, 255, 0
+#define PIECE_COLOR_T 177, 0, 177
+#define PIECE_COLOR_S 0, 255, 0
+#define PIECE_COLOR_Z 255, 0, 0
+#define PIECE_COLOR_J 50, 50, 255
+#define PIECE_COLOR_L 255, 127, 0
+#define PIECE_COLOR_GHOST 255, 255, 255
+
 typedef enum {
     empty = -1,
     i = 0,
@@ -12,6 +21,7 @@ typedef enum {
     s = 4,
     t = 5,
     z = 6,
+    ghost = 7
 } piece_type_e;
 
 typedef struct {
@@ -24,6 +34,8 @@ piece_t pieceCreate(piece_type_e type);
 piece_t pieceCreateRandom();
 void pieceDraw(piece_t * piece);
 void pieceDrawP(piece_t * piece, unsigned x, unsigned y);
+void _pieceDrawBlock(piece_t * piece, int x, int y, piece_type_e block_index);
+void pieceDrawGhost(piece_t * piece, int x, int y);
 piece_t pieceRotateCW(piece_t piece);
 piece_t pieceRotateCCW(piece_t piece);
 

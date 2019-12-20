@@ -20,6 +20,7 @@ struct {
 void gameStateInitialize();
 void gameStateUpdate(double delta);
 void gameStateDraw();
+void gameStateDrawGhost();
 void gameStateWillChangeState(gameState_e state);
 
 void gameStateOnPieceLock();
