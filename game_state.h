@@ -6,7 +6,7 @@
 #include "helper.h"
 #include "piece.h"
 
-#define PIECE_BAG_SIZE 14
+#define PIECE_BAG_SIZE 7
 
 struct {
     sprite_t * bricks, * box_tiles, * block_tiles;
@@ -26,6 +26,8 @@ void gameStateDraw();
 void gameStateDrawGhost();
 void gameStateWillChangeState(gameState_e state);
 void gameStateFillBag();
+piece_t gameStateGetPieceFromBag();
+void gameStateShuffleBag();
 
 void gameStateOnPieceLock();
 SDL_bool gameMovePieceDown();

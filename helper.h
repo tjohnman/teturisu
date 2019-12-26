@@ -21,7 +21,6 @@ void draw(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigne
 void drawNumber(unsigned number, unsigned x, unsigned y, uint8_t alignRight);
 void changeState(gameState_e state);
 void fillRect(unsigned x, unsigned y, unsigned w, unsigned h);
-void shuffle(int * array, size_t len);
 void cleanup();
 
 #endif // HELPER_H

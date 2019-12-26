@@ -73,19 +73,6 @@ void drawNumber(unsigned number, unsigned x, unsigned y, uint8_t alignRight) {
     }
 }
 
-void shuffle(int * array, size_t len) {
-    int tmp;
-
-    MTRand r = seedRand(time(0));
-
-    for(unsigned i=0; i<len*10; ++i) {
-        int j = (int)(genRand(&r)*len);
-        tmp = array[i];
-        array[i] = array[j];
-        array[j] = tmp;
-    }
-}
-
 void cleanup() {
     free(helperData.buffer);
     spriteDestroy(helperData.digitsSprite);

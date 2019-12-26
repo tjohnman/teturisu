@@ -1,5 +1,7 @@
 #include "game_state.h"
 #include "input.h"
+#include "mtwister.h"
+#include "piece.h"
 
 void gameStateInitialize() {
     gameState.bricks = spriteCreate("assets/side-bricks.png", 16, 16);
@@ -17,6 +19,7 @@ void gameStateInitialize() {
     gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
 
     for(unsigned i=0; i<200; ++i) gameState.board[i] = empty;
+    for(unsigned i=0; i<PIECE_BAG_SIZE; ++i) gameState.piece_bag[i] = empty;
 
     gameStateOnPieceLock();
 }
@@ -109,7 +112,7 @@ void gameStateCheckLines() {
             };
         }
         if(line) {
-            if(first_line == -1) first_line = y;
+            if(first_line == (unsigned)-1) first_line = y;
             ++line_count;
         }
     }
@@ -255,7 +258,7 @@ void gameStateDraw() {
     pieceDraw(&gameState.current_piece);
     pieceDrawP(&gameState.next_piece, 16, 1);
 
-    if(gameState.piece_lock_animation_delay != -1) {
+    if(gameState.piece_lock_animation_delay != (unsigned)-1) {
         if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
         else --gameState.piece_lock_animation_delay;
     }
@@ -279,7 +282,7 @@ void gameStateWillChangeState(gameState_e state) {
 void gameStateOnPieceLock() {
     gameState.current_piece = gameState.next_piece;
     gameState.current_piece.y = -3;
-    gameState.next_piece = pieceCreateRandom(gameState.current_piece.tile_index);
+    gameState.next_piece = gameStateGetPieceFromBag();
     gameState.lock_time_start = 0;
     gameState.piece_lock_animation_delay = 10;
 }
@@ -329,4 +332,41 @@ SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offse
         }
     }
     return SDL_FALSE;
+}
+
+void gameStateFillBag() {
+    gameState.piece_bag[0] = i;
+    gameState.piece_bag[1] = o;
+    gameState.piece_bag[2] = s;
+    gameState.piece_bag[3] = z;
+    gameState.piece_bag[4] = l;
+    gameState.piece_bag[5] = j;
+    gameState.piece_bag[6] = t;
+
+    gameStateShuffleBag();
+}
+
+void gameStateShuffleBag() {
+    piece_type_e tmp;
+
+    MTRand r = seedRand(time(0));
+
+    for(unsigned i=0; i<PIECE_BAG_SIZE*10; ++i) {
+        int j = (piece_type_e)((genRand(&r)*PIECE_BAG_SIZE));
+        tmp = gameState.piece_bag[i%PIECE_BAG_SIZE];
+        gameState.piece_bag[i%PIECE_BAG_SIZE] = gameState.piece_bag[j];
+        gameState.piece_bag[j] = tmp;
+    }
+}
+
+piece_t gameStateGetPieceFromBag() {
+    if(gameState.piece_bag[6] == empty) gameStateFillBag();
+
+    piece_type_e next = gameState.piece_bag[6];
+    for(unsigned i=PIECE_BAG_SIZE-1; i>0; --i) {
+        gameState.piece_bag[i] = gameState.piece_bag[i-1];
+    }
+    gameState.piece_bag[0] = empty;
+    
+    return pieceCreate(next);
 }

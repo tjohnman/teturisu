@@ -17,4 +17,4 @@ $(TARGET): $(OBJ)
 	$(CC) -MM $< > $@
 
 clean:
-	@rm -f *.o *.d
+	@rm -f *.o *.d $(TARGET)
