@@ -4,3 +4,7 @@ teturisu
 .DS_Store
 teturisu.dSYM/
 .atom-build.yml
+*.o
+.ccls-cache/
+compile_commands.json
+

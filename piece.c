@@ -126,7 +126,6 @@ void pieceDrawGhost(piece_t * piece, int x, int y) {
 
         unsigned x = idx%4;
         unsigned y = idx/4;
-        if(x >= ghost.size || y >= ghost.size) continue;
         _pieceDrawBlock(&ghost, x, y, 7);
 
     }

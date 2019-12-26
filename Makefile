@@ -1,2 +1,20 @@
-all:	
-	gcc -g -Wall `sdl2-config --cflags --libs` -lSDL2_image *.c -o teturisu
+TARGET = teturisu
+CC=cc
+LD=ld
+CFLAGS = -std=c99 -g -Wall -Wextra `sdl2-config --cflags`
+LFLAGS = `sdl2-config --libs` -lSDL2_image
+SRC = $(wildcard *.c)
+OBJ = $(patsubst %.c,%.o,$(SRC))
+DEP = $(patsubst %.c,%.d,%(SRC))
+
+$(TARGET): $(OBJ)
+	$(CC) $(LFLAGS) $^ -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%.d: %.c
+	$(CC) -MM $< > $@
+
+clean:
+	@rm -f *.o *.d

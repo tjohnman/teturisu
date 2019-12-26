@@ -6,6 +6,8 @@
 #include "helper.h"
 #include "piece.h"
 
+#define PIECE_BAG_SIZE 14
+
 struct {
     sprite_t * bricks, * box_tiles, * block_tiles;
     piece_t current_piece, next_piece;
@@ -13,6 +15,7 @@ struct {
     unsigned last_force_down, lock_time_start;
     piece_type_e board[200];
     unsigned piece_lock_animation_delay;
+    piece_type_e piece_bag[PIECE_BAG_SIZE];
 
     unsigned score, level, cleared_line_count;
 } gameState;
@@ -22,6 +25,7 @@ void gameStateUpdate(double delta);
 void gameStateDraw();
 void gameStateDrawGhost();
 void gameStateWillChangeState(gameState_e state);
+void gameStateFillBag();
 
 void gameStateOnPieceLock();
 SDL_bool gameMovePieceDown();

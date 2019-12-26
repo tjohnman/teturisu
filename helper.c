@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "helper.h"
 #include "game_state.h"
+#include "mtwister.h"
 
 void init() {
     helperData.digitsSprite = spriteCreate("assets/digits.png", 8, 9);
@@ -22,7 +23,7 @@ void changeState(gameState_e state) {
     switch(currentState) {
         default:
         case menu:
-            
+
         break;
 
         case game:
@@ -33,7 +34,7 @@ void changeState(gameState_e state) {
     switch(state) {
         default:
         case menu:
-            
+
         break;
 
         case game:
@@ -69,6 +70,19 @@ void drawNumber(unsigned number, unsigned x, unsigned y, uint8_t alignRight) {
         }
         helperData.digitsSprite->y = y;
         spriteDraw(helperData.digitsSprite);
+    }
+}
+
+void shuffle(int * array, size_t len) {
+    int tmp;
+
+    MTRand r = seedRand(time(0));
+
+    for(int i=0; i<len*10; ++i) {
+        int j = (int)(genRand(&r)*len);
+        tmp = array[i];
+        array[i] = array[j];
+        array[j] = tmp;
     }
 }
 
