@@ -78,7 +78,7 @@ void shuffle(int * array, size_t len) {
 
     MTRand r = seedRand(time(0));
 
-    for(int i=0; i<len*10; ++i) {
+    for(unsigned i=0; i<len*10; ++i) {
         int j = (int)(genRand(&r)*len);
         tmp = array[i];
         array[i] = array[j];
