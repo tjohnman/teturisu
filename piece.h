@@ -21,7 +21,8 @@ typedef enum {
     s = 4,
     t = 5,
     z = 6,
-    ghost = 7
+    ghost = 7,
+    bedrock = 8
 } piece_type_e;
 
 typedef struct {

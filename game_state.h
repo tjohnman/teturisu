@@ -18,9 +18,12 @@ struct {
     piece_type_e piece_bag[PIECE_BAG_SIZE];
 
     unsigned score, level, cleared_line_count;
+    SDL_bool game_over;
+    signed game_over_filler_position;
 } gameState;
 
 void gameStateInitialize();
+void gameStateGameOver();
 void gameStateUpdate(double delta);
 void gameStateDraw();
 void gameStateDrawGhost();

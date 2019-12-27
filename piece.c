@@ -110,7 +110,7 @@ void pieceDraw(piece_t * piece) {
 void _pieceDrawBlock(piece_t * piece, int x, int y, piece_type_e block_index) {
     spriteSetFrame(helperData.blocksSprite, block_index);
     helperData.blocksSprite->x = WIDTH / 2 - 68 + (piece->x + x) * helperData.blocksSprite->frame_width;
-    helperData.blocksSprite->y = (2 + piece->y + y) * helperData.blocksSprite->frame_height;
+    helperData.blocksSprite->y = (piece->y + y) * helperData.blocksSprite->frame_height;
     spriteDraw(helperData.blocksSprite);
 }
 

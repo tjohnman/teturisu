@@ -18,6 +18,9 @@ void gameStateInitialize() {
     gameState.lock_time_start = 0;
     gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
 
+    gameState.game_over = SDL_FALSE;
+    gameState.game_over_filler_position = 19;
+
     for(unsigned i=0; i<200; ++i) gameState.board[i] = empty;
     for(unsigned i=0; i<PIECE_BAG_SIZE; ++i) gameState.piece_bag[i] = empty;
 
@@ -26,6 +29,22 @@ void gameStateInitialize() {
 
 void gameStateUpdate(double delta) {
     gameState.time += delta;
+
+    if(gameState.game_over) {
+        if(gameState.game_over_filler_position == -1) {
+            SDL_Delay(2000);
+            gameStateInitialize();
+            return;
+        }
+
+        for(unsigned i=0; i<10; ++i) {
+            gameState.board[gameState.game_over_filler_position * 10 + i] = rand()%7;
+        }
+
+        gameState.game_over_filler_position--;
+        SDL_Delay(50);
+        return;
+    }
 
     if(gameState.piece_lock_animation_delay != 1 && gameState.piece_lock_animation_delay > 0) return;
 
@@ -120,7 +139,7 @@ void gameStateCheckLines() {
     if(line_count) {
         SDL_Rect r;
         r.x = WIDTH / 2 - 68;
-        r.y = (2 + first_line)*gameState.block_tiles->frame_height;
+        r.y = (first_line)*gameState.block_tiles->frame_height;
         r.w = 10 * gameState.block_tiles->frame_width;
         r.h = line_count * gameState.block_tiles->frame_height;
 
@@ -236,7 +255,7 @@ void gameStateDraw() {
 
         //spriteSetFrame(gameState.block_tiles, gameState.board[idx]);
         gameState.block_tiles->x = WIDTH / 2 - 68 + (idx%10) * gameState.block_tiles->frame_width;
-        gameState.block_tiles->y = (2 + idx/10) * gameState.block_tiles->frame_height;
+        gameState.block_tiles->y = idx/10 * gameState.block_tiles->frame_height;
 
         switch(gameState.board[idx]) {
             default: break;
@@ -254,13 +273,15 @@ void gameStateDraw() {
 
     SDL_SetTextureColorMod(gameState.block_tiles->texture, 255, 255, 255);
 
-    gameStateDrawGhost();
-    pieceDraw(&gameState.current_piece);
-    pieceDrawP(&gameState.next_piece, 16, 1);
+    if(!gameState.game_over) {
+        gameStateDrawGhost();
+        pieceDraw(&gameState.current_piece);
+        pieceDrawP(&gameState.next_piece, 16, 3);
 
-    if(gameState.piece_lock_animation_delay != (unsigned)-1) {
-        if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
-        else --gameState.piece_lock_animation_delay;
+        if(gameState.piece_lock_animation_delay != (unsigned)-1) {
+            if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
+            else --gameState.piece_lock_animation_delay;
+        }
     }
 }
 
@@ -310,11 +331,21 @@ void gameLockPiece() {
 
         signed board_x = gameState.current_piece.x + piece_x;
         signed board_y = gameState.current_piece.y + piece_y;
-        if(board_y < 0 || board_x < 0 || board_x >= 10 || board_y > 18) continue;
+
+        if(board_y < 0) {
+            gameStateGameOver();
+            return;
+        }
+
+        if(board_x < 0 || board_x >= 10 || board_y > 20) continue;
 
         gameState.board[board_x + board_y * 10] = gameState.current_piece.data[piece_x + piece_y * 4];
     }
     gameStateOnPieceLock();
+}
+
+void gameStateGameOver() {
+    gameState.game_over = SDL_TRUE;
 }
 
 SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offset_y) {
@@ -327,7 +358,7 @@ SDL_bool pieceIntersectsWithBoard(piece_t * piece, signed offset_x, signed offse
         signed board_x = piece->x + piece_x + offset_x;
         signed board_y = piece->y + piece_y + offset_y;
 
-        if(board_x < 0 || board_x >= 10 || board_y >= 18 || (board_y >= 0 && gameState.board[board_x + board_y * 10] != empty)) {
+        if(board_x < 0 || board_x >= 10 || board_y >= 20 || (board_y >= 0 && gameState.board[board_x + board_y * 10] != empty)) {
             return SDL_TRUE;
         }
     }
