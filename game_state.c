@@ -163,7 +163,7 @@ void gameStateCheckLines() {
         }
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(100);
+        SDL_Delay(50);
         for(unsigned y=0; y<20; ++y) {
             if(cleared_lines[y] != SDL_TRUE) continue;
             gameStateFlashLine(y, SDL_FALSE);
@@ -171,7 +171,7 @@ void gameStateCheckLines() {
 
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(100);
+        SDL_Delay(50);
         for(unsigned y=0; y<20; ++y) {
             if(cleared_lines[y] != SDL_TRUE) continue;
             gameStateFlashLine(y, SDL_TRUE);
