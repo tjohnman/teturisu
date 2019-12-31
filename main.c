@@ -10,7 +10,8 @@ int main(int argc, char * argv[]) {
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
 
-    SDL_CreateWindowAndRenderer(WIDTH * SCALE, HEIGHT * SCALE, SDL_WINDOW_SHOWN, &window, &renderer);
+    window = SDL_CreateWindow("Teturisu", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH*SCALE, HEIGHT*SCALE, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE | SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
     SDL_SetHint("SDL_HINT_RENDER_SCALE_QUALITY", "0");
 
