@@ -10,6 +10,5 @@
 
 SDL_Window * window;
 SDL_Renderer * renderer;
-SDL_Texture * canvas;
 
 #endif // INCLUDES_H

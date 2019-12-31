@@ -31,6 +31,8 @@ void gameStateWillChangeState(gameState_e state);
 void gameStateFillBag();
 piece_t gameStateGetPieceFromBag();
 void gameStateShuffleBag();
+void gameStateFlashLine(unsigned index, SDL_bool line_on);
+void gameStateDropLines(unsigned empty_index);
 
 void gameStateOnPieceLock();
 SDL_bool gameMovePieceDown();

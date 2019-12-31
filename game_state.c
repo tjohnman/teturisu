@@ -119,9 +119,29 @@ void gameStateLevelUp() {
     gameState.drop_step_duration *= 0.75;
 }
 
+void gameStateFlashLine(unsigned index, SDL_bool line_on) {
+    SDL_Rect r;
+    r.x = WIDTH / 2 - 68;
+    r.y = (index)*gameState.block_tiles->frame_height;
+    r.w = 10 * gameState.block_tiles->frame_width;
+    r.h = gameState.block_tiles->frame_height;
+
+    SDL_SetRenderDrawColor(renderer, line_on ? 127 : 0, line_on ? 127 : 0, line_on ? 127 : 0, 255);
+    SDL_RenderFillRect(renderer, &r);
+}
+
+void gameStateDropLines(unsigned empty_index) {
+    for(unsigned y=empty_index; y>0; --y) {
+        for(unsigned x=0; x<10; ++x) gameState.board[x + y*10] = gameState.board[x + (y-1)*10];
+    }
+    
+    for(unsigned x=0; x<10; ++x) gameState.board[x] = empty;
+}
+
 void gameStateCheckLines() {
     unsigned line_count = 0;
-    unsigned first_line = -1;
+    SDL_bool cleared_lines[20];
+
     for(unsigned y=0; y<20; ++y) {
         SDL_bool line = SDL_TRUE;
         for(unsigned x=0; x<10; ++x) {
@@ -131,55 +151,48 @@ void gameStateCheckLines() {
             };
         }
         if(line) {
-            if(first_line == (unsigned)-1) first_line = y;
+            cleared_lines[y] = SDL_TRUE;
             ++line_count;
-        }
+        } else cleared_lines[y] = SDL_FALSE;
     }
 
     if(line_count) {
-        SDL_Rect r;
-        r.x = WIDTH / 2 - 68;
-        r.y = (first_line)*gameState.block_tiles->frame_height;
-        r.w = 10 * gameState.block_tiles->frame_width;
-        r.h = line_count * gameState.block_tiles->frame_height;
-
-        SDL_Texture * previous_target = SDL_GetRenderTarget(renderer);
-        SDL_SetRenderTarget(renderer, 0);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &r);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(100);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &r);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(100);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &r);
-        SDL_RenderPresent(renderer);
-        SDL_Delay(100);
-        SDL_SetRenderTarget(renderer, previous_target);
-
-        for(unsigned y=first_line; y<first_line+line_count; ++y) {
-            for(unsigned x=0; x<10; ++x) {
-                gameState.board[x + y*10] = empty;
-                for(unsigned y2=y; y2>0; --y2) {
-                    gameState.board[x + y2*10] = gameState.board[x + (y2-1)*10];
-                }
-                gameState.board[x] = empty;
-            }
+        for(unsigned y=0; y<20; ++y) {
+            if(cleared_lines[y] != SDL_TRUE) continue;
+            gameStateFlashLine(y, SDL_TRUE);
         }
-    }
 
-    switch(line_count) {
-        default: break;
-        case 1: gameState.score += 100 * gameState.level; break;
-        case 2: gameState.score += 300 * gameState.level; break;
-        case 3: gameState.score += 500 * gameState.level; break;
-        case 4: gameState.score += 800 * gameState.level; break;
-    }
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+        for(unsigned y=0; y<20; ++y) {
+            if(cleared_lines[y] != SDL_TRUE) continue;
+            gameStateFlashLine(y, SDL_FALSE);
+        }
 
-    gameState.cleared_line_count += line_count;
-    if(line_count > 0 && gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+        for(unsigned y=0; y<20; ++y) {
+            if(cleared_lines[y] != SDL_TRUE) continue;
+            gameStateFlashLine(y, SDL_TRUE);
+            for(unsigned x=0; x<10; ++x) gameState.board[x + y*10] = empty;
+            gameStateDropLines(y);
+        }
+        
+        SDL_RenderPresent(renderer);
+        SDL_Delay(100);
+
+        switch(line_count) {
+            default: break;
+            case 1: gameState.score += 100 * gameState.level; break;
+            case 2: gameState.score += 300 * gameState.level; break;
+            case 3: gameState.score += 500 * gameState.level; break;
+            case 4: gameState.score += 800 * gameState.level; break;
+        }
+
+        gameState.cleared_line_count += line_count;
+        if(gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
+    }
 }
 
 void gameStateResetLockTimer() {

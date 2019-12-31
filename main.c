@@ -14,8 +14,6 @@ int main(int argc, char * argv[]) {
     SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
     SDL_SetHint("SDL_HINT_RENDER_SCALE_QUALITY", "0");
 
-    canvas = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, WIDTH, HEIGHT);
-
     uint8_t done = SDL_FALSE;
     SDL_Event e;
     uint32_t lastMillis, currentMillis;
@@ -39,13 +37,11 @@ int main(int argc, char * argv[]) {
 
         mainUpdate(delta);
 
-        SDL_SetRenderTarget(renderer, canvas);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(renderer, 0);
+
         mainDraw();
 
-        SDL_SetRenderTarget(renderer, 0);
-        SDL_RenderCopy(renderer, canvas, 0, 0);
         SDL_RenderPresent(renderer);
 
         lastMillis = currentMillis;
@@ -53,7 +49,6 @@ int main(int argc, char * argv[]) {
 
     cleanup();
 
-    SDL_DestroyTexture(canvas);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
