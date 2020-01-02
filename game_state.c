@@ -382,7 +382,7 @@ void gameStateDrawHoldBox() {
 
 void gameStateHoldPiece() {
     if(gameState.held_piece_already) return;
-    gameState.held_piece = gameState.current_piece;
+    gameState.held_piece = pieceCreate(gameState.current_piece.tile_index);
     gameState.held_piece.x = 33;
     gameState.held_piece.y = 18;
     

@@ -5,10 +5,15 @@ unsigned getActionIndexForKey(SDL_Keycode code) {
         default: return -1; break;
         case SDLK_LEFT: return left; break;
         case SDLK_RIGHT: return right; break;
-        case SDLK_UP: return drop; break;
         case SDLK_DOWN: return down; break;
+        case SDLK_SPACE: return drop; break;
+        case SDLK_LCTRL:
+        case SDLK_RCTRL:
         case SDLK_z: return rotate_ccw; break;
+        case SDLK_UP:
         case SDLK_x: return rotate_cw; break;
+        case SDLK_LSHIFT:
+        case SDLK_RSHIFT:
         case SDLK_c: return hold; break;
     }
 }
