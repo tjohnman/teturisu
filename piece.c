@@ -88,7 +88,8 @@ void pieceDraw(piece_t * piece) {
     for(unsigned idx=0; idx<16; ++idx) {
         if(piece->data[idx] == -1) continue;
 
-        switch(piece->data[idx]) {
+        if(piece->tile_index == ghost) SDL_SetTextureColorMod(helperData.blocksSprite->texture, 255, 255, 255);
+        else switch(piece->data[idx]) {
             default: break;
             case i: SDL_SetTextureColorMod(helperData.blocksSprite->texture, PIECE_COLOR_I); break;
             case o: SDL_SetTextureColorMod(helperData.blocksSprite->texture, PIECE_COLOR_O); break;
@@ -101,7 +102,7 @@ void pieceDraw(piece_t * piece) {
 
         unsigned x = idx%4;
         unsigned y = idx/4;
-        _pieceDrawBlock(piece, x, y, 5);
+        _pieceDrawBlock(piece, x, y, piece->tile_index == ghost ? ghost : 5);
 
     }
     SDL_SetTextureColorMod(helperData.blocksSprite->texture, 255, 255, 255);
@@ -112,36 +113,6 @@ void _pieceDrawBlock(piece_t * piece, int x, int y, piece_type_e block_index) {
     helperData.blocksSprite->x = WIDTH / 2 - 68 + (piece->x + x) * helperData.blocksSprite->frame_width;
     helperData.blocksSprite->y = (piece->y + y) * helperData.blocksSprite->frame_height;
     spriteDraw(helperData.blocksSprite);
-}
-
-void pieceDrawGhost(piece_t * piece, int x, int y) {
-    SDL_SetTextureColorMod(helperData.blocksSprite->texture, PIECE_COLOR_GHOST);
-
-    piece_t ghost = *piece;
-    ghost.x = x;
-    ghost.y = y;
-
-    for(unsigned idx=0; idx<16; ++idx) {
-        if(ghost.data[idx] == -1) continue;
-
-        unsigned x = idx%4;
-        unsigned y = idx/4;
-        _pieceDrawBlock(&ghost, x, y, 7);
-
-    }
-    SDL_SetTextureColorMod(helperData.blocksSprite->texture, 255, 255, 255);
-}
-
-void pieceDrawP(piece_t * piece, unsigned x, unsigned y) {
-    unsigned _x = piece->x;
-    unsigned _y = piece->y;
-
-    piece->x = x - 2;
-    piece->y = y;
-    pieceDraw(piece);
-
-    piece->x = _x;
-    piece->y = _y;
 }
 
 piece_t pieceRotateCW(piece_t piece) {

@@ -261,6 +261,8 @@ void gameStateDraw() {
     gameState.box_tiles->x = box_x + 48;
     spriteDraw(gameState.box_tiles);
 
+    gameStateDrawHoldBox();
+
     spriteSetFrame(gameState.block_tiles, 5);
 
     for(unsigned idx=0; idx<200; ++idx) {
@@ -289,7 +291,10 @@ void gameStateDraw() {
     if(!gameState.game_over) {
         gameStateDrawGhost();
         pieceDraw(&gameState.current_piece);
-        pieceDrawP(&gameState.next_piece, 16, 3);
+
+        gameState.next_piece.x = 14;
+        gameState.next_piece.y = 3;
+        pieceDraw(&gameState.next_piece);
 
         if(gameState.piece_lock_animation_delay != (unsigned)-1) {
             if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
@@ -299,12 +304,62 @@ void gameStateDraw() {
 }
 
 void gameStateDrawGhost() {
-    piece_t ghost = gameState.current_piece;
-    while(!pieceIntersectsWithBoard(&ghost, 0, 1)) {
-        ++ghost.y;
+    piece_t ghost_piece = gameState.current_piece;
+    ghost_piece.tile_index = ghost;
+    while(!pieceIntersectsWithBoard(&ghost_piece, 0, 1)) {
+        ++ghost_piece.y;
     }
 
-    pieceDrawGhost(&ghost, ghost.x, ghost.y);
+    pieceDraw(&ghost_piece);
+}
+
+void gameStateDrawHoldBox() {
+    unsigned box_x = 128;
+    unsigned box_y = 80;
+
+    fillRect(box_x+8, box_y+8, 40, 16);
+
+    spriteSetFrame(gameState.box_tiles, 0);
+    gameState.box_tiles->x = box_x;
+    gameState.box_tiles->y = box_y;
+    spriteDraw(gameState.box_tiles);
+
+    spriteSetFrame(gameState.box_tiles, 7);
+    for(unsigned i=1; i<6; ++i) {
+        gameState.box_tiles->x = box_x + i*8;
+        spriteDraw(gameState.box_tiles);
+    }
+    spriteSetFrame(gameState.box_tiles, 6);
+    gameState.box_tiles->x = box_x + 48;
+    spriteDraw(gameState.box_tiles);
+
+    spriteSetFrame(gameState.box_tiles, 1);
+    gameState.box_tiles->x = box_x;
+    gameState.box_tiles->y = box_y+8;
+    spriteDraw(gameState.box_tiles);
+    gameState.box_tiles->y = box_y+16;
+    spriteDraw(gameState.box_tiles);
+
+    spriteSetFrame(gameState.box_tiles, 5);
+    gameState.box_tiles->x = box_x+48;
+    gameState.box_tiles->y = box_y+8;
+    spriteDraw(gameState.box_tiles);
+    gameState.box_tiles->y = box_y+16;
+    spriteDraw(gameState.box_tiles);
+
+    spriteSetFrame(gameState.box_tiles, 2);
+    gameState.box_tiles->x = box_x;
+    gameState.box_tiles->y = box_y + 24;
+    spriteDraw(gameState.box_tiles);
+
+    spriteSetFrame(gameState.box_tiles, 3);
+    for(unsigned i=1; i<6; ++i) {
+        gameState.box_tiles->x = box_x + i*8;
+        spriteDraw(gameState.box_tiles);
+    }
+    spriteSetFrame(gameState.box_tiles, 4);
+    gameState.box_tiles->x = box_x + 48;
+    spriteDraw(gameState.box_tiles);
 }
 
 void gameStateWillChangeState(gameState_e state) {
@@ -315,6 +370,7 @@ void gameStateWillChangeState(gameState_e state) {
 
 void gameStateOnPieceLock() {
     gameState.current_piece = gameState.next_piece;
+    gameState.current_piece.x = 3;
     gameState.current_piece.y = -3;
     gameState.next_piece = gameStateGetPieceFromBag();
     gameState.lock_time_start = 0;

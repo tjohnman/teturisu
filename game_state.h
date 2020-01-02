@@ -29,6 +29,7 @@ void gameStateDraw();
 void gameStateDrawGhost();
 void gameStateWillChangeState(gameState_e state);
 void gameStateFillBag();
+void gameStateDrawHoldBox();
 piece_t gameStateGetPieceFromBag();
 void gameStateShuffleBag();
 void gameStateFlashLine(unsigned index, SDL_bool line_on);
