@@ -8,8 +8,13 @@ void gameStateInitialize() {
     gameState.box_tiles = spriteCreate("assets/box-tiles-dark.png", 8, 8);
     gameState.block_tiles = spriteCreate("assets/blocks.png", 8, 8);
 
+    gameState.hold_caption = spriteCreate("assets/hold.png", 0, 0);
+    gameState.hold_caption->x = 166;
+    gameState.hold_caption->y = 65;
+
     gameState.score = 0;
     gameState.next_piece = pieceCreateRandom();
+    gameState.held_piece = pieceCreate(empty);
     gameState.cleared_line_count = 0;
 
     gameState.piece_lock_animation_delay = SDL_FALSE;
@@ -80,6 +85,10 @@ void gameStateUpdate(double delta) {
             gameState.score += 2;
         }
         gameLockPiece();
+    }
+
+    if(justPressed(SDLK_c)) {
+        gameStateHoldPiece();
     }
 
     if(justPressed(SDLK_x)) {
@@ -314,52 +323,71 @@ void gameStateDrawGhost() {
 }
 
 void gameStateDrawHoldBox() {
-    unsigned box_x = 128;
-    unsigned box_y = 80;
+    double scale = 0.5;
 
-    fillRect(box_x+8, box_y+8, 40, 16);
+    unsigned box_x = 155;
+    unsigned box_y = 73;
+
+    fillRect(box_x+4, box_y+4, 20, 8);
 
     spriteSetFrame(gameState.box_tiles, 0);
     gameState.box_tiles->x = box_x;
     gameState.box_tiles->y = box_y;
-    spriteDraw(gameState.box_tiles);
+    spriteDrawScaled(gameState.box_tiles, scale);
 
     spriteSetFrame(gameState.box_tiles, 7);
     for(unsigned i=1; i<6; ++i) {
-        gameState.box_tiles->x = box_x + i*8;
-        spriteDraw(gameState.box_tiles);
+        gameState.box_tiles->x = box_x + i*4;
+        spriteDrawScaled(gameState.box_tiles, scale);
     }
     spriteSetFrame(gameState.box_tiles, 6);
-    gameState.box_tiles->x = box_x + 48;
-    spriteDraw(gameState.box_tiles);
+    gameState.box_tiles->x = box_x + 24;
+    spriteDrawScaled(gameState.box_tiles, scale);
 
     spriteSetFrame(gameState.box_tiles, 1);
     gameState.box_tiles->x = box_x;
+    gameState.box_tiles->y = box_y+4;
+    spriteDrawScaled(gameState.box_tiles, scale);
     gameState.box_tiles->y = box_y+8;
-    spriteDraw(gameState.box_tiles);
-    gameState.box_tiles->y = box_y+16;
-    spriteDraw(gameState.box_tiles);
+    spriteDrawScaled(gameState.box_tiles, scale);
 
     spriteSetFrame(gameState.box_tiles, 5);
-    gameState.box_tiles->x = box_x+48;
+    gameState.box_tiles->x = box_x+24;
+    gameState.box_tiles->y = box_y+4;
+    spriteDrawScaled(gameState.box_tiles, scale);
     gameState.box_tiles->y = box_y+8;
-    spriteDraw(gameState.box_tiles);
-    gameState.box_tiles->y = box_y+16;
-    spriteDraw(gameState.box_tiles);
+    spriteDrawScaled(gameState.box_tiles, scale);
 
     spriteSetFrame(gameState.box_tiles, 2);
     gameState.box_tiles->x = box_x;
-    gameState.box_tiles->y = box_y + 24;
-    spriteDraw(gameState.box_tiles);
+    gameState.box_tiles->y = box_y + 12;
+    spriteDrawScaled(gameState.box_tiles, scale);
 
     spriteSetFrame(gameState.box_tiles, 3);
     for(unsigned i=1; i<6; ++i) {
-        gameState.box_tiles->x = box_x + i*8;
-        spriteDraw(gameState.box_tiles);
+        gameState.box_tiles->x = box_x + i*4;
+        spriteDrawScaled(gameState.box_tiles, scale);
     }
     spriteSetFrame(gameState.box_tiles, 4);
-    gameState.box_tiles->x = box_x + 48;
-    spriteDraw(gameState.box_tiles);
+    gameState.box_tiles->x = box_x + 24;
+    spriteDrawScaled(gameState.box_tiles, scale);
+
+    spriteDrawScaled(gameState.hold_caption, scale);
+    pieceDrawScaled(&gameState.held_piece, scale);
+}
+
+void gameStateHoldPiece() {
+    if(gameState.held_piece_already) return;
+    gameState.held_piece = gameState.current_piece;
+    gameState.held_piece.x = 33;
+    gameState.held_piece.y = 18;
+    
+    gameState.current_piece = gameState.next_piece;
+    gameState.current_piece.x = 3;
+    gameState.current_piece.y = -3;
+    gameState.next_piece = gameStateGetPieceFromBag();
+
+    gameState.held_piece_already = SDL_TRUE;
 }
 
 void gameStateWillChangeState(gameState_e state) {
@@ -375,6 +403,7 @@ void gameStateOnPieceLock() {
     gameState.next_piece = gameStateGetPieceFromBag();
     gameState.lock_time_start = 0;
     gameState.piece_lock_animation_delay = 10;
+    gameState.held_piece_already = SDL_FALSE;
 }
 
 SDL_bool gameMovePieceDown() {

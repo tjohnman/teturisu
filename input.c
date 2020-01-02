@@ -9,12 +9,12 @@ unsigned getActionIndexForKey(SDL_Keycode code) {
         case SDLK_DOWN: return down; break;
         case SDLK_z: return rotate_ccw; break;
         case SDLK_x: return rotate_cw; break;
-        case SDLK_RETURN: return hold; break;
+        case SDLK_c: return hold; break;
     }
 }
 
 void inputCheckEvent(SDL_Event * event) {
-    unsigned action = getActionIndexForKey(event->key.keysym.sym);
+    signed action = getActionIndexForKey(event->key.keysym.sym);
     if(action == -1) return;
 
     if(event->type == SDL_KEYDOWN) {
@@ -36,7 +36,7 @@ void inputCheckEvent(SDL_Event * event) {
 }
 
 SDL_bool justPressed(SDL_Keycode code) {
-    unsigned action = getActionIndexForKey(code);
+    signed action = getActionIndexForKey(code);
     if(action == -1) return SDL_FALSE;
     
     SDL_bool result = input.keys[action].pressed_last_frame;
@@ -45,14 +45,14 @@ SDL_bool justPressed(SDL_Keycode code) {
 }
 
 SDL_bool isKeyDown(SDL_Keycode code) {
-    unsigned action = getActionIndexForKey(code);
+    signed action = getActionIndexForKey(code);
     if(action == -1) return SDL_FALSE;
 
     return input.keys[action].pressed;
 }
 
 SDL_bool keyRepeat(SDL_Keycode code) {
-    unsigned action = getActionIndexForKey(code);
+    signed action = getActionIndexForKey(code);
     if(action == -1) return SDL_FALSE;
 
     unsigned time = SDL_GetTicks();

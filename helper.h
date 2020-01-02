@@ -18,6 +18,7 @@ struct {
 
 void init();
 void draw(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigned w, unsigned h);
+void drawScaled(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigned w, unsigned h, double scale);
 void drawNumber(unsigned number, unsigned x, unsigned y, uint8_t alignRight);
 void changeState(gameState_e state);
 void fillRect(unsigned x, unsigned y, unsigned w, unsigned h);

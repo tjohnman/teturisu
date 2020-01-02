@@ -10,11 +10,15 @@ void init() {
 }
 
 void draw(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigned w, unsigned h) {
+    drawScaled(texture, src, x, y, w, h, 1.0);
+}
+
+void drawScaled(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigned w, unsigned h, double scale) {
     SDL_Rect dst;
     dst.x = x;
     dst.y = y;
-    dst.w = w == 0 ? src->w : w;
-    dst.h = h == 0 ? src->h : h;
+    dst.w = w == 0 ? (src->w * scale) : (w * scale);
+    dst.h = h == 0 ? (src->h * scale) : (h * scale);
 
     SDL_RenderCopy(renderer, texture, src, &dst);
 }

@@ -34,7 +34,9 @@ typedef struct {
 piece_t pieceCreate(piece_type_e type);
 piece_t pieceCreateRandom();
 void pieceDraw(piece_t * piece);
+void pieceDrawScaled(piece_t * piece, double scale);
 void _pieceDrawBlock(piece_t * piece, int x, int y, piece_type_e block_index);
+void _pieceDrawBlockScaled(piece_t * piece, int x, int y, piece_type_e block_index, double scale);
 piece_t pieceRotateCW(piece_t piece);
 piece_t pieceRotateCCW(piece_t piece);
 

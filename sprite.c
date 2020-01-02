@@ -8,14 +8,20 @@ sprite_t * spriteCreate(const char * path, unsigned frame_width, unsigned frame_
     strncpy(sprite->image_path, path, strnlen(path, 256));
 
     sprite->current_frame = 0;
-    sprite->frame_width = frame_width;
-    sprite->frame_height = frame_height;
 
     SDL_Surface * surface = IMG_Load(path);
     sprite->width = surface->w;
     sprite->height = surface->h;
     sprite->texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+
+    if(frame_width == 0) {
+        sprite->frame_width = sprite->width;
+    } else sprite->frame_width = frame_width;
+
+    if(frame_height == 0) {
+        sprite->frame_height = sprite->height;
+    } else sprite->frame_height = frame_height;
 
     Uint32 format;
     SDL_QueryTexture(sprite->texture, &format, 0, 0, 0);
@@ -32,13 +38,17 @@ void spriteSetFrame(sprite_t * sprite, unsigned frame) {
 }
 
 void spriteDraw(sprite_t * sprite) {
+    spriteDrawScaled(sprite, 1.0);
+}
+
+void spriteDrawScaled(sprite_t * sprite, double scale) {
     SDL_Rect src;
     src.x = sprite->current_frame * sprite->frame_width;
     src.y = 0;
     src.w = sprite->frame_width;
     src.h = sprite->frame_height;
 
-    draw(sprite->texture, &src, sprite->x, sprite->y, 0, 0);
+    drawScaled(sprite->texture, &src, sprite->x, sprite->y, 0, 0, scale);
 }
 
 void spriteDestroy(sprite_t * sprite) {

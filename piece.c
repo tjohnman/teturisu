@@ -83,6 +83,10 @@ piece_t pieceCreateRandom(piece_type_e previous_type) {
 }
 
 void pieceDraw(piece_t * piece) {
+    pieceDrawScaled(piece, 1.0);
+}
+
+void pieceDrawScaled(piece_t * piece, double scale) {
     spriteSetFrame(helperData.blocksSprite, 5);
 
     for(unsigned idx=0; idx<16; ++idx) {
@@ -102,17 +106,21 @@ void pieceDraw(piece_t * piece) {
 
         unsigned x = idx%4;
         unsigned y = idx/4;
-        _pieceDrawBlock(piece, x, y, piece->tile_index == ghost ? ghost : 5);
+        _pieceDrawBlockScaled(piece, x, y, piece->tile_index == ghost ? ghost : 5, scale);
 
     }
     SDL_SetTextureColorMod(helperData.blocksSprite->texture, 255, 255, 255);
 }
 
 void _pieceDrawBlock(piece_t * piece, int x, int y, piece_type_e block_index) {
+    _pieceDrawBlockScaled(piece, x, y, block_index, 1.0);
+}
+
+void _pieceDrawBlockScaled(piece_t * piece, int x, int y, piece_type_e block_index, double scale) {
     spriteSetFrame(helperData.blocksSprite, block_index);
-    helperData.blocksSprite->x = WIDTH / 2 - 68 + (piece->x + x) * helperData.blocksSprite->frame_width;
-    helperData.blocksSprite->y = (piece->y + y) * helperData.blocksSprite->frame_height;
-    spriteDraw(helperData.blocksSprite);
+    helperData.blocksSprite->x = WIDTH / 2 - 68 + (piece->x + x) * helperData.blocksSprite->frame_width * scale;
+    helperData.blocksSprite->y = (piece->y + y) * helperData.blocksSprite->frame_height * scale;
+    spriteDrawScaled(helperData.blocksSprite, scale);
 }
 
 piece_t pieceRotateCW(piece_t piece) {

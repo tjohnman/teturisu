@@ -16,6 +16,7 @@ typedef struct {
 sprite_t * spriteCreate(const char * path, unsigned frame_width, unsigned frame_height);
 void spriteSetFrame(sprite_t * sprite, unsigned frame);
 void spriteDraw(sprite_t * sprite);
+void spriteDrawScaled(sprite_t * sprite, double scale);
 void spriteDestroy(sprite_t * sprite);
 
 #endif // SPRITE_H
