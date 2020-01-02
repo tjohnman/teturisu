@@ -79,7 +79,7 @@ void gameStateUpdate(double delta) {
         }
     }
 
-    if(justPressed(SDLK_UP)) {
+    if(justPressed(SDLK_SPACE)) {
         while(!pieceIntersectsWithBoard(&gameState.current_piece, 0, 1)) {
             gameMovePieceDown();
             gameState.score += 2;
@@ -87,11 +87,11 @@ void gameStateUpdate(double delta) {
         gameLockPiece();
     }
 
-    if(justPressed(SDLK_c)) {
+    if(justPressed(SDLK_c) || justPressed(SDLK_LSHIFT)) {
         gameStateHoldPiece();
     }
 
-    if(justPressed(SDLK_x)) {
+    if(justPressed(SDLK_x) || justPressed(SDLK_UP)) {
         piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
         if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
             if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
@@ -104,7 +104,7 @@ void gameStateUpdate(double delta) {
         gameStateResetLockTimer();
     }
 
-    if(justPressed(SDLK_z)) {
+    if(justPressed(SDLK_z) || justPressed(SDLK_LCTRL)) {
         piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
         if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
             if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
@@ -116,6 +116,10 @@ void gameStateUpdate(double delta) {
 
         gameState.current_piece = rotated_piece;
         gameStateResetLockTimer();
+    }
+
+    if(justPressed(SDLK_ESCAPE) || justPressed(SDLK_F1)) {
+        // TODO: Pause.
     }
 
     if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
