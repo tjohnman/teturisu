@@ -396,14 +396,20 @@ void gameStateDrawHoldBox() {
 
 void gameStateHoldPiece() {
     if(gameState.held_piece_already) return;
+    piece_t previously_held_piece = gameState.held_piece;
+
     gameState.held_piece = pieceCreate(gameState.current_piece.tile_index);
     gameState.held_piece.x = 33;
     gameState.held_piece.y = 18;
     
-    gameState.current_piece = gameState.next_piece;
+    if(previously_held_piece.tile_index != empty) {
+        gameState.current_piece = previously_held_piece;
+    } else {
+        gameState.current_piece = gameState.next_piece;
+        gameState.next_piece = gameStateGetPieceFromBag();
+    }
     gameState.current_piece.x = 3;
     gameState.current_piece.y = -3;
-    gameState.next_piece = gameStateGetPieceFromBag();
 
     gameState.held_piece_already = SDL_TRUE;
 }
