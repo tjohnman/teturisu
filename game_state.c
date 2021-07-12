@@ -8,6 +8,11 @@ void gameStateInitialize() {
     gameState.box_tiles = spriteCreate("assets/box-tiles-dark.png", 8, 8);
     gameState.block_tiles = spriteCreate("assets/blocks.png", 8, 8);
 
+    gameState.paused = 0;
+    gameState.paused_label = spriteCreate("assets/paused.png", 58, 20);
+    gameState.paused_label->x = WIDTH / 2 - 29;
+    gameState.paused_label->y = HEIGHT / 2 - 10;
+
     gameState.hold_caption = spriteCreate("assets/hold.png", 0, 0);
     gameState.hold_caption->x = 166;
     gameState.hold_caption->y = 65;
@@ -33,97 +38,99 @@ void gameStateInitialize() {
 }
 
 void gameStateUpdate(double delta) {
-    gameState.time += delta;
+    if(!gameState.paused) {
+        gameState.time += delta;
+        
+        if(gameState.game_over) {
+            if(gameState.game_over_filler_position == -1) {
+                SDL_Delay(2000);
+                gameStateInitialize();
+                return;
+            }
 
-    if(gameState.game_over) {
-        if(gameState.game_over_filler_position == -1) {
-            SDL_Delay(2000);
-            gameStateInitialize();
+            for(unsigned i=0; i<10; ++i) {
+                gameState.board[gameState.game_over_filler_position * 10 + i] = rand()%7;
+            }
+
+            gameState.game_over_filler_position--;
+            SDL_Delay(50);
             return;
         }
 
-        for(unsigned i=0; i<10; ++i) {
-            gameState.board[gameState.game_over_filler_position * 10 + i] = rand()%7;
-        }
+        if(gameState.piece_lock_animation_delay != 1 && gameState.piece_lock_animation_delay > 0) return;
 
-        gameState.game_over_filler_position--;
-        SDL_Delay(50);
-        return;
-    }
-
-    if(gameState.piece_lock_animation_delay != 1 && gameState.piece_lock_animation_delay > 0) return;
-
-    if(gameState.lock_time_start == 0 && gameState.time >= gameState.next_drop_time) {
-        gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
-        gameMovePieceDown();
-    }
-
-    if(justPressed(SDLK_LEFT) || keyRepeat(SDLK_LEFT)) {
-        if(!pieceIntersectsWithBoard(&gameState.current_piece, -1, 0)) {
-            gameState.current_piece.x--;
-            gameStateResetLockTimer();
-        }
-    }
-
-    if(justPressed(SDLK_RIGHT) || keyRepeat(SDLK_RIGHT)) {
-        if(!pieceIntersectsWithBoard(&gameState.current_piece, 1, 0)) {
-            gameState.current_piece.x++;
-            gameStateResetLockTimer();
-        }
-    }
-
-    if(isKeyDown(SDLK_DOWN) && SDL_GetTicks() > gameState.last_force_down + 50) {
-        if(gameMovePieceDown()) {
-            ++gameState.score;
-            gameState.last_force_down = SDL_GetTicks();
-        }
-    }
-
-    if(justPressed(SDLK_SPACE)) {
-        while(!pieceIntersectsWithBoard(&gameState.current_piece, 0, 1)) {
+        if(gameState.lock_time_start == 0 && gameState.time >= gameState.next_drop_time) {
+            gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
             gameMovePieceDown();
-            gameState.score += 2;
-        }
-        gameLockPiece();
-    }
-
-    if(justPressed(SDLK_c) || justPressed(SDLK_LSHIFT)) {
-        gameStateHoldPiece();
-    }
-
-    if(justPressed(SDLK_x) || justPressed(SDLK_UP)) {
-        piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
-        if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
-            if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
-            else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
-            else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
-            else return;
         }
 
-        gameState.current_piece = rotated_piece;
-        gameStateResetLockTimer();
-    }
-
-    if(justPressed(SDLK_z) || justPressed(SDLK_LCTRL)) {
-        piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
-        if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
-            if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
-            else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
-            else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
-            else return;
-            while(!pieceIntersectsWithBoard(&rotated_piece, 0, 1)) rotated_piece.y++;
+        if(justPressed(SDLK_LEFT) || keyRepeat(SDLK_LEFT)) {
+            if(!pieceIntersectsWithBoard(&gameState.current_piece, -1, 0)) {
+                gameState.current_piece.x--;
+                gameStateResetLockTimer();
+            }
         }
 
-        gameState.current_piece = rotated_piece;
-        gameStateResetLockTimer();
+        if(justPressed(SDLK_RIGHT) || keyRepeat(SDLK_RIGHT)) {
+            if(!pieceIntersectsWithBoard(&gameState.current_piece, 1, 0)) {
+                gameState.current_piece.x++;
+                gameStateResetLockTimer();
+            }
+        }
+
+        if(isKeyDown(SDLK_DOWN) && SDL_GetTicks() > gameState.last_force_down + 50) {
+            if(gameMovePieceDown()) {
+                ++gameState.score;
+                gameState.last_force_down = SDL_GetTicks();
+            }
+        }
+
+        if(justPressed(SDLK_SPACE)) {
+            while(!pieceIntersectsWithBoard(&gameState.current_piece, 0, 1)) {
+                gameMovePieceDown();
+                gameState.score += 2;
+            }
+            gameLockPiece();
+        }
+
+        if(justPressed(SDLK_c) || justPressed(SDLK_LSHIFT)) {
+            gameStateHoldPiece();
+        }
+
+        if(justPressed(SDLK_x) || justPressed(SDLK_UP)) {
+            piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
+            if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
+                if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
+                else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
+                else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
+                else return;
+            }
+
+            gameState.current_piece = rotated_piece;
+            gameStateResetLockTimer();
+        }
+
+        if(justPressed(SDLK_z) || justPressed(SDLK_LCTRL)) {
+            piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
+            if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
+                if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
+                else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
+                else if(!pieceIntersectsWithBoard(&rotated_piece, 0, -1)) rotated_piece.y--;
+                else return;
+                while(!pieceIntersectsWithBoard(&rotated_piece, 0, 1)) rotated_piece.y++;
+            }
+
+            gameState.current_piece = rotated_piece;
+            gameStateResetLockTimer();
+        }
+
+        if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
+            gameLockPiece();
+        }
     }
 
     if(justPressed(SDLK_ESCAPE) || justPressed(SDLK_F1)) {
-        // TODO: Pause.
-    }
-
-    if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
-        gameLockPiece();
+        gameState.paused = abs(gameState.paused - 1);
     }
 }
 
@@ -313,6 +320,11 @@ void gameStateDraw() {
             if(gameState.piece_lock_animation_delay == 0) gameStateCheckLines();
             else --gameState.piece_lock_animation_delay;
         }
+    }
+
+    if(gameState.paused) {
+        fillRectColor(0, 0, WIDTH, HEIGHT, 0, 0, 0);
+        spriteDraw(gameState.paused_label);
     }
 }
 

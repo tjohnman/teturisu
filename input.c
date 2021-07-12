@@ -15,6 +15,7 @@ unsigned getActionIndexForKey(SDL_Keycode code) {
         case SDLK_LSHIFT:
         case SDLK_RSHIFT:
         case SDLK_c: return hold; break;
+        case SDLK_F1: case SDLK_ESCAPE: return pause; break;
     }
 }
 

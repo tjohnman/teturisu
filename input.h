@@ -4,7 +4,7 @@
 #define INPUT_H
 
 enum {
-    left, right, drop, down, rotate_cw, rotate_ccw, hold
+    left, right, drop, down, rotate_cw, rotate_ccw, hold, pause
 } input_action;
 
 typedef struct {
@@ -14,7 +14,7 @@ typedef struct {
 } key_action_t;
 
 struct {
-    key_action_t keys[7];
+    key_action_t keys[8];
 } input;
 
 unsigned getActionIndexForKey(SDL_Keycode code);

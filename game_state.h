@@ -9,7 +9,7 @@
 #define PIECE_BAG_SIZE 7
 
 struct {
-    sprite_t * bricks, * box_tiles, * block_tiles, * hold_caption;
+    sprite_t * bricks, * box_tiles, * block_tiles, * hold_caption, * paused_label;
     piece_t current_piece, next_piece, held_piece;
     double time, next_drop_time, drop_step_duration;
     unsigned last_force_down, lock_time_start;
@@ -18,7 +18,7 @@ struct {
     piece_type_e piece_bag[PIECE_BAG_SIZE];
 
     unsigned score, level, cleared_line_count;
-    SDL_bool game_over, held_piece_already;
+    SDL_bool game_over, held_piece_already, paused;
     signed game_over_filler_position;
 } gameState;
 

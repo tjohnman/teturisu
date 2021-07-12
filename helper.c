@@ -50,13 +50,17 @@ void changeState(gameState_e state) {
 }
 
 void fillRect(unsigned x, unsigned y, unsigned w, unsigned h) {
+    return fillRectColor(x, y, w, h, 255, 255, 255);
+}
+
+void fillRectColor(unsigned x, unsigned y, unsigned w, unsigned h, Uint8 r, Uint8 g, Uint8 b) {
     SDL_Rect rect;
     rect.x = x;
     rect.y = y;
     rect.w = w;
     rect.h = h;
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
     SDL_RenderFillRect(renderer, &rect);
 }
 
