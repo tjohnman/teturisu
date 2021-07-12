@@ -31,6 +31,8 @@ void gameStateInitialize() {
     gameState.game_over = SDL_FALSE;
     gameState.game_over_filler_position = 19;
 
+    gameState.level = 0;
+
     for(unsigned i=0; i<200; ++i) gameState.board[i] = empty;
     for(unsigned i=0; i<PIECE_BAG_SIZE; ++i) gameState.piece_bag[i] = empty;
 
@@ -40,7 +42,7 @@ void gameStateInitialize() {
 void gameStateUpdate(double delta) {
     if(!gameState.paused) {
         gameState.time += delta;
-        
+
         if(gameState.game_over) {
             if(gameState.game_over_filler_position == -1) {
                 SDL_Delay(2000);
@@ -204,10 +206,10 @@ void gameStateCheckLines() {
 
         switch(line_count) {
             default: break;
-            case 1: gameState.score += 100 * gameState.level; break;
-            case 2: gameState.score += 300 * gameState.level; break;
-            case 3: gameState.score += 500 * gameState.level; break;
-            case 4: gameState.score += 800 * gameState.level; break;
+            case 1: gameState.score += 100 * (gameState.level + 1); break;
+            case 2: gameState.score += 300 * (gameState.level + 1); break;
+            case 3: gameState.score += 500 * (gameState.level + 1); break;
+            case 4: gameState.score += 800 * (gameState.level + 1); break;
         }
 
         gameState.cleared_line_count += line_count;
