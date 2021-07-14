@@ -36,6 +36,26 @@ void gameStateInitialize() {
     for(unsigned i=0; i<200; ++i) gameState.board[i] = empty;
     for(unsigned i=0; i<PIECE_BAG_SIZE; ++i) gameState.piece_bag[i] = empty;
 
+    if (!gameState.audio_drop) {
+        gameState.audio_drop = Mix_LoadWAV("assets/sfx/drop.ogg");
+    }
+    if (!gameState.audio_gameover) {
+        gameState.audio_gameover = Mix_LoadWAV("assets/sfx/gameover.ogg");
+    }
+    if (!gameState.audio_line) {
+        gameState.audio_line = Mix_LoadWAV("assets/sfx/line.ogg");
+    }
+    if (!gameState.audio_rotate) {
+        gameState.audio_rotate = Mix_LoadWAV("assets/sfx/rotate.ogg");
+    }
+    if (!gameState.audio_set) {
+        gameState.audio_set = Mix_LoadWAV("assets/sfx/set.ogg");
+        Mix_VolumeChunk(gameState.audio_set, 32);
+    }
+    if (!gameState.audio_tetris) {
+        gameState.audio_tetris = Mix_LoadWAV("assets/sfx/tetris.ogg");
+    }
+
     gameStateOnPieceLock();
 }
 
@@ -63,6 +83,7 @@ void gameStateUpdate(double delta) {
 
         if(gameState.lock_time_start == 0 && gameState.time >= gameState.next_drop_time) {
             gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
+            Mix_PlayChannel(-1, gameState.audio_drop, 0);
             gameMovePieceDown();
         }
 
@@ -101,6 +122,7 @@ void gameStateUpdate(double delta) {
 
         if(justPressed(SDLK_x) || justPressed(SDLK_UP)) {
             piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
+            Mix_PlayChannel(-1, gameState.audio_rotate, 0);
             if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
                 if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
                 else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
@@ -114,6 +136,7 @@ void gameStateUpdate(double delta) {
 
         if(justPressed(SDLK_z) || justPressed(SDLK_LCTRL)) {
             piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
+            Mix_PlayChannel(-1, gameState.audio_rotate, 0);
             if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
                 if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
                 else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
@@ -128,6 +151,7 @@ void gameStateUpdate(double delta) {
 
         if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
             gameLockPiece();
+            Mix_PlayChannel(-1, gameState.audio_set, 0);
         }
     }
 
@@ -214,6 +238,12 @@ void gameStateCheckLines() {
 
         gameState.cleared_line_count += line_count;
         if(gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
+
+        if (line_count < 4) {
+            Mix_PlayChannel(-1, gameState.audio_line, 0);
+        } else {
+            Mix_PlayChannel(-1, gameState.audio_tetris, 0);
+        }
     }
 }
 
@@ -445,6 +475,8 @@ void gameLockPiece() {
         return;
     }
 
+    Mix_PlayChannel(-1, gameState.audio_set, 0);
+
     for(unsigned i=0; i<16; i++) {
         signed piece_x = i%4;
         signed piece_y = i/4;
@@ -467,6 +499,7 @@ void gameLockPiece() {
 }
 
 void gameStateGameOver() {
+    Mix_PlayChannel(-1, gameState.audio_gameover, 0);
     gameState.game_over = SDL_TRUE;
 }
 
@@ -510,6 +543,15 @@ void gameStateShuffleBag() {
         gameState.piece_bag[i%PIECE_BAG_SIZE] = gameState.piece_bag[j];
         gameState.piece_bag[j] = tmp;
     }
+}
+
+void gameStateCleanup() {
+    Mix_FreeChunk(gameState.audio_drop);
+    Mix_FreeChunk(gameState.audio_gameover);
+    Mix_FreeChunk(gameState.audio_line);
+    Mix_FreeChunk(gameState.audio_rotate);
+    Mix_FreeChunk(gameState.audio_set);
+    Mix_FreeChunk(gameState.audio_tetris);
 }
 
 piece_t gameStateGetPieceFromBag() {

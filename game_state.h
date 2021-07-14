@@ -20,6 +20,8 @@ struct {
     unsigned score, level, cleared_line_count;
     SDL_bool game_over, held_piece_already, paused;
     signed game_over_filler_position;
+
+    Mix_Chunk * audio_drop, * audio_gameover, * audio_line, * audio_rotate, * audio_set, * audio_tetris;
 } gameState;
 
 void gameStateInitialize();
@@ -42,5 +44,6 @@ void gameLockPiece();
 void gameStateResetLockTimer();
 void gameStateCheckLines();
 void gameStateLevelUp();
+void gameStateCleanup();
 
 #endif // GAME_STATE_H

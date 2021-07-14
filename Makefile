@@ -2,7 +2,7 @@ TARGET = teturisu
 CC=cc
 LD=ld
 CFLAGS = -std=c99 -g -Wall -Wextra `sdl2-config --cflags`
-LFLAGS = `sdl2-config --libs` -lSDL2_image
+LFLAGS = `sdl2-config --libs` -lSDL2_image -lSDL2_mixer
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 DEP = $(patsubst %.c,%.d,%(SRC))
