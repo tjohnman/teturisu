@@ -8,13 +8,15 @@ typedef enum {
     game
 } gameState_e;
 
-gameState_e currentState;
+extern gameState_e currentState;
 
-struct {
+typedef struct {
     sprite_t * digitsSprite;
     sprite_t * blocksSprite;
     char * buffer;
-} helperData;
+} helperData_t;
+
+extern helperData_t helperData;
 
 void init();
 void draw(SDL_Texture * texture, SDL_Rect * src, unsigned x, unsigned y, unsigned w, unsigned h);

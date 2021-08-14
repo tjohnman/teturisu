@@ -3,7 +3,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-enum {
+extern enum {
     left, right, drop, down, rotate_cw, rotate_ccw, hold, pause
 } input_action;
 
@@ -13,9 +13,11 @@ typedef struct {
     SDL_bool repeat_lock, pressed_last_frame, pressed;
 } key_action_t;
 
-struct {
+typedef struct {
     key_action_t keys[8];
-} input;
+} input_t;
+
+extern input_t input;
 
 unsigned getActionIndexForKey(SDL_Keycode code);
 void inputCheckEvent(SDL_Event * event);

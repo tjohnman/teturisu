@@ -3,6 +3,12 @@
 #include "game_state.h"
 #include "input.h"
 
+SDL_Window * window;
+SDL_Renderer * renderer;
+gameState_e currentState;
+helperData_t helperData;
+gameState_t gameState;
+
 void mainUpdate(double delta);
 void mainDraw();
 

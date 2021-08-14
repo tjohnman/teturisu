@@ -9,7 +9,7 @@
 #define HEIGHT 160
 #define SCALE 3
 
-SDL_Window * window;
-SDL_Renderer * renderer;
+extern SDL_Window * window;
+extern SDL_Renderer * renderer;
 
 #endif // INCLUDES_H

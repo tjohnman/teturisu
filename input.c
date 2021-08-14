@@ -1,5 +1,7 @@
 #include "input.h"
 
+input_t input;
+
 unsigned getActionIndexForKey(SDL_Keycode code) {
     switch(code) {
         default: return -1; break;

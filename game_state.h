@@ -8,7 +8,7 @@
 
 #define PIECE_BAG_SIZE 7
 
-struct {
+typedef struct {
     sprite_t * bricks, * box_tiles, * block_tiles, * hold_caption, * paused_label;
     piece_t current_piece, next_piece, held_piece;
     double time, next_drop_time, drop_step_duration;
@@ -22,7 +22,9 @@ struct {
     signed game_over_filler_position;
 
     Mix_Chunk * audio_drop, * audio_gameover, * audio_line, * audio_rotate, * audio_set, * audio_tetris;
-} gameState;
+} gameState_t;
+
+extern gameState_t gameState;
 
 void gameStateInitialize();
 void gameStateGameOver();
