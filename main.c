@@ -2,12 +2,14 @@
 #include "helper.h"
 #include "game_state.h"
 #include "input.h"
+#include "audio.h"
 
 SDL_Window * window;
 SDL_Renderer * renderer;
 gameState_e currentState;
 helperData_t helperData;
 gameState_t gameState;
+SDL_bool audioMuted;
 
 void mainUpdate(double delta);
 void mainDraw();

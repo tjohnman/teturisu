@@ -12,3 +12,4 @@ Depends on SDL2 and SDL2_image. Uses the _Random generator_ algorithm as describ
 - Down: soft drop.
 - Space: hard drop.
 - Escape and F1: pause/unpause.
+- m: Toggle mute.

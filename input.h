@@ -4,7 +4,7 @@
 #define INPUT_H
 
 extern enum {
-    left, right, drop, down, rotate_cw, rotate_ccw, hold, pause
+    left, right, drop, down, rotate_cw, rotate_ccw, hold, pause, mute
 } input_action;
 
 typedef struct {
@@ -14,7 +14,7 @@ typedef struct {
 } key_action_t;
 
 typedef struct {
-    key_action_t keys[8];
+    key_action_t keys[9];
 } input_t;
 
 extern input_t input;

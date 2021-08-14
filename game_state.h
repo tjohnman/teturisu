@@ -9,7 +9,7 @@
 #define PIECE_BAG_SIZE 7
 
 typedef struct {
-    sprite_t * bricks, * box_tiles, * block_tiles, * hold_caption, * paused_label;
+    sprite_t * bricks, * box_tiles, * block_tiles, * hold_caption, * paused_label, * mute_indicator;
     piece_t current_piece, next_piece, held_piece;
     double time, next_drop_time, drop_step_duration;
     unsigned last_force_down, lock_time_start;

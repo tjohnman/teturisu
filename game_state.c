@@ -2,11 +2,16 @@
 #include "input.h"
 #include "mtwister.h"
 #include "piece.h"
+#include "audio.h"
 
 void gameStateInitialize() {
     gameState.bricks = spriteCreate("assets/side-bricks.png", 16, 16);
     gameState.box_tiles = spriteCreate("assets/box-tiles-dark.png", 8, 8);
     gameState.block_tiles = spriteCreate("assets/blocks.png", 8, 8);
+
+    gameState.mute_indicator = spriteCreate("assets/mute-indicator.png", 32, 32);
+    gameState.mute_indicator->x = WIDTH - 32;
+    gameState.mute_indicator->y = HEIGHT - 32;
 
     gameState.paused = 0;
     gameState.paused_label = spriteCreate("assets/paused.png", 58, 20);
@@ -83,8 +88,12 @@ void gameStateUpdate(double delta) {
 
         if(gameState.lock_time_start == 0 && gameState.time >= gameState.next_drop_time) {
             gameState.next_drop_time = gameState.time + gameState.drop_step_duration;
-            Mix_PlayChannel(-1, gameState.audio_drop, 0);
+            playSound(gameState.audio_drop);
             gameMovePieceDown();
+        }
+
+        if (justPressed(SDLK_m)) {
+            audioMuted = !audioMuted;
         }
 
         if(justPressed(SDLK_LEFT) || keyRepeat(SDLK_LEFT)) {
@@ -122,7 +131,7 @@ void gameStateUpdate(double delta) {
 
         if(justPressed(SDLK_x) || justPressed(SDLK_UP)) {
             piece_t rotated_piece = pieceRotateCW(gameState.current_piece);
-            Mix_PlayChannel(-1, gameState.audio_rotate, 0);
+            playSound(gameState.audio_rotate);
             if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
                 if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
                 else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
@@ -136,7 +145,7 @@ void gameStateUpdate(double delta) {
 
         if(justPressed(SDLK_z) || justPressed(SDLK_LCTRL)) {
             piece_t rotated_piece = pieceRotateCCW(gameState.current_piece);
-            Mix_PlayChannel(-1, gameState.audio_rotate, 0);
+            playSound(gameState.audio_rotate);
             if(pieceIntersectsWithBoard(&rotated_piece, 0, 0)) {
                 if(!pieceIntersectsWithBoard(&rotated_piece, -1, 0)) rotated_piece.x--;
                 else if(!pieceIntersectsWithBoard(&rotated_piece, 1, 0)) rotated_piece.x++;
@@ -151,7 +160,7 @@ void gameStateUpdate(double delta) {
 
         if(gameState.lock_time_start != 0 && SDL_GetTicks() > gameState.lock_time_start + 500) {
             gameLockPiece();
-            Mix_PlayChannel(-1, gameState.audio_set, 0);
+            playSound(gameState.audio_set);
         }
     }
 
@@ -240,9 +249,9 @@ void gameStateCheckLines() {
         if(gameState.cleared_line_count % 10 == 0) gameStateLevelUp();
 
         if (line_count < 4) {
-            Mix_PlayChannel(-1, gameState.audio_line, 0);
+            playSound(gameState.audio_line);
         } else {
-            Mix_PlayChannel(-1, gameState.audio_tetris, 0);
+            playSound(gameState.audio_tetris);
         }
     }
 }
@@ -357,6 +366,10 @@ void gameStateDraw() {
     if(gameState.paused) {
         fillRectColor(0, 0, WIDTH, HEIGHT, 0, 0, 0);
         spriteDraw(gameState.paused_label);
+    }
+
+    if(audioMuted) {
+        spriteDraw(gameState.mute_indicator);
     }
 }
 
@@ -475,7 +488,7 @@ void gameLockPiece() {
         return;
     }
 
-    Mix_PlayChannel(-1, gameState.audio_set, 0);
+    playSound(gameState.audio_set);
 
     for(unsigned i=0; i<16; i++) {
         signed piece_x = i%4;
@@ -499,7 +512,7 @@ void gameLockPiece() {
 }
 
 void gameStateGameOver() {
-    Mix_PlayChannel(-1, gameState.audio_gameover, 0);
+    playSound(gameState.audio_gameover);
     gameState.game_over = SDL_TRUE;
 }
 
