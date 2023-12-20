@@ -1,6 +1,8 @@
 # teturisu
 A Tetris clone written in C using SDL2 that more or less complies with the official guidelines.
-Depends on SDL2 and SDL2_image. Uses the _Random generator_ algorithm as described by the guidelines and a public domain implementation of the Mersenne Twister algorithm to shuffle the bag.
+Uses the _Random generator_ algorithm as described by the guidelines and a public domain implementation of the Mersenne Twister algorithm to shuffle the bag.
+
+Depends on SDL2, SDL2_mixer and SDL2_image. Should be straightforward to build on Linux, macOS, or Windows (MinGW).
 
 ![Screenshot](https://raw.githubusercontent.com/tjohnman/teturisu/master/assets/screenshot.png)
 
